@@ -89,6 +89,9 @@ class Formiga:
 	def obterCidade(self):
 		return self.cidade
 
+	def setCidade(self, cidade):
+		self.cidade = cidade
+
 	def obterSolucao(self):
 		return self.solucao
 
@@ -109,7 +112,7 @@ class Formiga:
 # classe do ACO
 class ACO:
 
-	def __init__(self, grafo, num_formigas, vertice_inicial=1, alfa=1, beta=5, 
+	def __init__(self, grafo, num_formigas, vertice_inicial=1, alfa=1.0, beta=5.0, 
 						iteracoes=10, evaporacao=0.5):
 		self.grafo = grafo
 		self.vertice_inicial = vertice_inicial
@@ -120,10 +123,15 @@ class ACO:
 		self.evaporacao = evaporacao # taxa de evaporação
 		self.formigas = [] # lista de formigas
 
-		# cria as formigas
-		for i in range(self.num_formigas):
-			# coloca cada formiga aleatoriamente em uma cidade
-			self.formigas.append(Formiga(cidade=random.randint(1, self.grafo.num_vertices)))
+		lista_cidades = [cidade for cidade in range(1, self.grafo.num_vertices + 1)]
+		# cria as formigas colocando cada uma em uma cidade
+		for k in range(self.num_formigas):
+			cidade_formiga = random.choice(lista_cidades)
+			lista_cidades.remove(cidade_formiga)
+			self.formigas.append(Formiga(cidade=cidade_formiga))
+			if not lista_cidades:
+				lista_cidades = [cidade for cidade in range(1, self.grafo.num_vertices + 1)]
+
 
 		# calcula o custo guloso pra usar na inicialização do feromônio
 		custo_guloso = 0.0
@@ -159,9 +167,9 @@ class ACO:
 
 			# lista de listas com as cidades visitadas por cada formiga
 			cidades_visitadas = []
-			for i in range(self.num_formigas):
+			for k in range(self.num_formigas):
 				# adiciona a cidade de origem de cada formiga
-				cidades = [self.formigas[i].obterCidade()]
+				cidades = [self.formigas[k].obterCidade()]
 				cidades_visitadas.append(cidades)
 
 			# para cada formiga constrói uma solução
@@ -190,10 +198,9 @@ class ACO:
 						# obtém a distância
 						distancia = self.grafo.obterCustoAresta(self.formigas[k].obterCidade(), cidade)
 						# obtém a probabilidade
-						probabilidade = (math.pow(feromonio, self.alfa) * math.pow(1.0 / distancia, self.beta)) / somatorio
+						probabilidade = (math.pow(feromonio, self.alfa) * math.pow(1.0 / distancia, self.beta)) / (somatorio if somatorio > 0 else 1)
 						# adiciona na lista de probabilidades
 						probabilidades[cidade] = probabilidade
-
 
 					# obtém a cidade escolhida
 					cidade_escolhida = max(probabilidades, key=probabilidades.get)
@@ -236,44 +243,81 @@ class ACO:
 				if aux_custo < custo:
 					solucao = self.formigas[k].obterSolucao()[:]
 					custo = aux_custo
-
-		print('Solução: %s | custo: %d' % (' -> '.join(str(i) for i in solucao), custo))
+		print('Solução final: %s | custo: %d\n' % (' -> '.join(str(i) for i in solucao), custo))
 
 
 if __name__ == "__main__":
 
 	# cria um grafo passando o número de vértices
-	grafo = Grafo(num_vertices=5)
+	grafo = Grafo(num_vertices=8)
 
+	# mapeando cidades para números
+	d = {'A':1, 'B':2, 'C':3, 'D':4, 'E':5, 'F':6, 'G':7, 'H':8}
 	# adiciona as arestas
-	grafo.adicionarAresta(1, 2, 1);
-	grafo.adicionarAresta(2, 1, 1);
-	grafo.adicionarAresta(1, 3, 3);
-	grafo.adicionarAresta(3, 1, 3);
-	grafo.adicionarAresta(1, 4, 4);
-	grafo.adicionarAresta(4, 1, 4);
-	grafo.adicionarAresta(1, 5, 5);
-	grafo.adicionarAresta(5, 1, 5);
-	grafo.adicionarAresta(2, 3, 1);
-	grafo.adicionarAresta(3, 2, 1);
-	grafo.adicionarAresta(2, 4, 4);
-	grafo.adicionarAresta(4, 2, 4);
-	grafo.adicionarAresta(2, 5, 8);
-	grafo.adicionarAresta(5, 2, 8);
-	grafo.adicionarAresta(3, 4, 5);
-	grafo.adicionarAresta(4, 3, 5);
-	grafo.adicionarAresta(3, 5, 1);
-	grafo.adicionarAresta(5, 3, 1);
-	grafo.adicionarAresta(4, 5, 2);
-	grafo.adicionarAresta(5, 4, 2);
+	grafo.adicionarAresta(d['B'], d['A'], 42)
+	grafo.adicionarAresta(d['A'], d['B'], 42)
+	grafo.adicionarAresta(d['C'], d['A'], 61)
+	grafo.adicionarAresta(d['A'], d['C'], 61)
+	grafo.adicionarAresta(d['C'], d['B'], 14)
+	grafo.adicionarAresta(d['B'], d['C'], 14)
+	grafo.adicionarAresta(d['D'], d['A'], 30)
+	grafo.adicionarAresta(d['A'], d['D'], 30)
+	grafo.adicionarAresta(d['D'], d['B'], 87)
+	grafo.adicionarAresta(d['B'], d['D'], 87)
+	grafo.adicionarAresta(d['D'], d['C'], 20)
+	grafo.adicionarAresta(d['C'], d['D'], 20)
+	grafo.adicionarAresta(d['E'], d['A'], 17)
+	grafo.adicionarAresta(d['A'], d['E'], 17)
+	grafo.adicionarAresta(d['E'], d['B'], 28)
+	grafo.adicionarAresta(d['B'], d['E'], 28)
+	grafo.adicionarAresta(d['E'], d['C'], 81)
+	grafo.adicionarAresta(d['C'], d['E'], 81)
+	grafo.adicionarAresta(d['E'], d['D'], 34)
+	grafo.adicionarAresta(d['D'], d['E'], 34)
+	grafo.adicionarAresta(d['F'], d['A'], 82)
+	grafo.adicionarAresta(d['A'], d['F'], 82)
+	grafo.adicionarAresta(d['F'], d['B'], 70)
+	grafo.adicionarAresta(d['B'], d['F'], 70)
+	grafo.adicionarAresta(d['F'], d['C'], 21)
+	grafo.adicionarAresta(d['C'], d['F'], 21)
+	grafo.adicionarAresta(d['F'], d['D'], 33)
+	grafo.adicionarAresta(d['D'], d['F'], 33)
+	grafo.adicionarAresta(d['F'], d['E'], 41)
+	grafo.adicionarAresta(d['E'], d['F'], 41)
+	grafo.adicionarAresta(d['G'], d['A'], 31)
+	grafo.adicionarAresta(d['A'], d['G'], 31)
+	grafo.adicionarAresta(d['G'], d['B'], 19)
+	grafo.adicionarAresta(d['B'], d['G'], 19)
+	grafo.adicionarAresta(d['G'], d['C'], 8)
+	grafo.adicionarAresta(d['C'], d['G'], 8)
+	grafo.adicionarAresta(d['G'], d['D'], 91)
+	grafo.adicionarAresta(d['D'], d['G'], 91)
+	grafo.adicionarAresta(d['G'], d['E'], 34)
+	grafo.adicionarAresta(d['E'], d['G'], 34)
+	grafo.adicionarAresta(d['G'], d['F'], 19)
+	grafo.adicionarAresta(d['F'], d['G'], 19)
+	grafo.adicionarAresta(d['H'], d['A'], 11)
+	grafo.adicionarAresta(d['A'], d['H'], 11)
+	grafo.adicionarAresta(d['H'], d['B'], 33)
+	grafo.adicionarAresta(d['B'], d['H'], 33)
+	grafo.adicionarAresta(d['H'], d['C'], 29)
+	grafo.adicionarAresta(d['C'], d['H'], 29)
+	grafo.adicionarAresta(d['H'], d['D'], 10)
+	grafo.adicionarAresta(d['D'], d['H'], 10)
+	grafo.adicionarAresta(d['H'], d['E'], 82)
+	grafo.adicionarAresta(d['E'], d['H'], 82)
+	grafo.adicionarAresta(d['H'], d['F'], 32)
+	grafo.adicionarAresta(d['F'], d['H'], 32)
+	grafo.adicionarAresta(d['H'], d['G'], 59)
+	grafo.adicionarAresta(d['G'], d['H'], 59)
 
 	# cria uma instância de ACO
-	aco = ACO(grafo=grafo, num_formigas=grafo.num_vertices, alfa=1, beta=5, 
-				iteracoes=50, evaporacao=0.5)
+	aco = ACO(grafo=grafo, num_formigas=grafo.num_vertices, alfa=1.0, beta=5.0, 
+				iteracoes=1000, evaporacao=0.5)
 	# roda o algoritmo
 	aco.rodar()
 
-
+	'''
 	# teste com grafo completo
 	print('\nTeste com grafo completo:')
 	grafo_completo = GrafoCompleto(num_vertices=10)
@@ -281,3 +325,4 @@ if __name__ == "__main__":
 	aco2 = ACO(grafo=grafo_completo, num_formigas=grafo_completo.num_vertices, 
 			alfa=1, beta=5, iteracoes=100, evaporacao=0.5)
 	aco2.rodar()
+	'''

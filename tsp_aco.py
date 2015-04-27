@@ -68,6 +68,16 @@ class Grafo:
 		return custo
 
 
+class GrafoCompleto(Grafo):
+	# gera um grafo completo
+	def gerar(self):
+		for i in range(1, self.num_vertices + 1):
+			for j in range(1, self.num_vertices + 1):
+				if i != j:
+					peso = random.randint(1, 10)
+					self.adicionarAresta(i, j, peso)
+
+
 # classe que representa uma formiga
 class Formiga:
 
@@ -94,6 +104,7 @@ class Formiga:
 
 	def obterCustoSolucao(self):
 		return self.custo
+
 
 # classe do ACO
 class ACO:
@@ -138,8 +149,8 @@ class ACO:
 
 		# inicializa o feromônio de todas as arestas
 		for chave_aresta in self.grafo.arestas:
-			#feromonio = 1.0 / (self.grafo.num_vertices * random.randint(1,10))
-			self.grafo.setFeromonioAresta(chave_aresta[0], chave_aresta[1], 1.0)
+			feromonio = 1.0 / (self.grafo.num_vertices * custo_guloso)
+			self.grafo.setFeromonioAresta(chave_aresta[0], chave_aresta[1], feromonio)
 
 
 	def rodar(self):
@@ -206,7 +217,6 @@ class ACO:
 					# adiciona a última aresta
 					arestas_formiga.append((cidades_visitadas[k][-1], cidades_visitadas[k][0]))
 					# verifica se a aresta faz parte do caminho da formiga "k"
-					#time.sleep(2)
 					if aresta in arestas_formiga:
 						somatorio_feromonio += (1.0 / self.grafo.obterCustoCaminho(cidades_visitadas[k]))
 				# calcula o novo feromônio
@@ -214,15 +224,20 @@ class ACO:
 				# seta o novo feromônio da aresta
 				self.grafo.setFeromonioAresta(aresta[0], aresta[1], novo_feromonio)
 
-			# mostra feromônio de cada aresta
-			#for aresta in self.grafo.arestas:
-			#	print('aresta (%s,%s) = %f' % (str(aresta[0]), str(aresta[1]), self.grafo.obterFeromonioAresta(aresta[0], aresta[1])))
-			#print('')
 
-			# mostra solução e custo de cada formiga
-			for k in range(self.num_formigas):
-				print('solução: %s, custo: %d' % (str(self.formigas[k].obterSolucao()), self.formigas[k].obterCustoSolucao()))
-			print('')
+		# percorre para obter as soluções das formigas
+		solucao, custo = None, None
+		for k in range(self.num_formigas):
+			if not solucao:
+				solucao = self.formigas[k].obterSolucao()[:]
+				custo = self.formigas[k].obterCustoSolucao()
+			else:
+				aux_custo = self.formigas[k].obterCustoSolucao()
+				if aux_custo < custo:
+					solucao = self.formigas[k].obterSolucao()[:]
+					custo = aux_custo
+
+		print('Solução: %s | custo: %d' % (' -> '.join(str(i) for i in solucao), custo))
 
 
 if __name__ == "__main__":
@@ -253,7 +268,16 @@ if __name__ == "__main__":
 	grafo.adicionarAresta(5, 4, 2);
 
 	# cria uma instância de ACO
-	aco = ACO(grafo=grafo, num_formigas=5, alfa=1, beta=5, 
-				iteracoes=100, evaporacao=0.5)
+	aco = ACO(grafo=grafo, num_formigas=grafo.num_vertices, alfa=1, beta=5, 
+				iteracoes=50, evaporacao=0.5)
 	# roda o algoritmo
 	aco.rodar()
+
+
+	# teste com grafo completo
+	print('\nTeste com grafo completo:')
+	grafo_completo = GrafoCompleto(num_vertices=10)
+	grafo_completo.gerar()
+	aco2 = ACO(grafo=grafo_completo, num_formigas=grafo_completo.num_vertices, 
+			alfa=1, beta=5, iteracoes=100, evaporacao=0.5)
+	aco2.rodar()

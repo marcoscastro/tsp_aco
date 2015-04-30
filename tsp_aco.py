@@ -5,8 +5,7 @@
 	Ant Colony Optimization for Traveling Salesman Problem
 '''
 
-import random, math, time
-
+import random, math
 
 # classe que representa uma aresta
 class Aresta:
@@ -112,10 +111,9 @@ class Formiga:
 # classe do ACO
 class ACO:
 
-	def __init__(self, grafo, num_formigas, vertice_inicial=1, alfa=1.0, beta=5.0, 
+	def __init__(self, grafo, num_formigas, alfa=1.0, beta=5.0, 
 						iteracoes=10, evaporacao=0.5):
 		self.grafo = grafo
-		self.vertice_inicial = vertice_inicial
 		self.num_formigas = num_formigas
 		self.alfa = alfa # importância do feromônio
 		self.beta = beta # importância da informação heurística
@@ -134,9 +132,10 @@ class ACO:
 
 
 		# calcula o custo guloso pra usar na inicialização do feromônio
-		custo_guloso = 0.0
-		vertice_corrente = self.vertice_inicial
-		visitados = [vertice_corrente]
+		custo_guloso = 0.0 # custo guloso
+		vertice_inicial = random.randint(1, grafo.num_vertices) # seleciona um vértice aleatório
+		vertice_corrente = vertice_inicial
+		visitados = [vertice_corrente] # lista de visitados
 		while True:
 			vizinhos = self.grafo.vizinhos[vertice_corrente][:]
 			custos, escolhidos = [], {}
@@ -153,7 +152,7 @@ class ACO:
 			visitados.append(vertice_corrente) # marca o vértice corrente como visitado
 
 		# adiciona o custo do último visitado ao custo_guloso
-		custo_guloso += self.grafo.obterCustoAresta(visitados[-1], self.vertice_inicial)
+		custo_guloso += self.grafo.obterCustoAresta(visitados[-1], vertice_inicial)
 
 		# inicializa o feromônio de todas as arestas
 		for chave_aresta in self.grafo.arestas:
@@ -316,13 +315,14 @@ if __name__ == "__main__":
 				iteracoes=1000, evaporacao=0.5)
 	# roda o algoritmo
 	aco.rodar()
-
-	'''
+	
 	# teste com grafo completo
-	print('\nTeste com grafo completo:')
-	grafo_completo = GrafoCompleto(num_vertices=10)
+	'''
+	num_vertices = 20
+	print('Teste de grafo com %d vertices...\n' % num_vertices)
+	grafo_completo = GrafoCompleto(num_vertices=num_vertices)
 	grafo_completo.gerar()
 	aco2 = ACO(grafo=grafo_completo, num_formigas=grafo_completo.num_vertices, 
-			alfa=1, beta=5, iteracoes=100, evaporacao=0.5)
+				alfa=1, beta=5, iteracoes=100, evaporacao=0.5)
 	aco2.rodar()
 	'''

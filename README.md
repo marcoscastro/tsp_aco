@@ -19,8 +19,8 @@ Um dos menores caminhos para esse grafo é:
 
 1 representa o "A", 2 representa o "B" e assim por diante.
 
-Alguns parâmetros podem ser ajustados tais como o "alfa" que é a importância do feromônio, "beta" que é a importância heurística, quantidade de iterações e a taxa de evaporação do feromônio. É aconselhável consultar as referências para um melhor entendimento da heurística.
+Alguns parâmetros podem ser ajustados tais como a quantidade de formigas (recomendável ser igual ao número de vértices), o "alfa" que é a importância do feromônio, "beta" que é a importância heurística, quantidade de iterações e a taxa de evaporação do feromônio. É aconselhável consultar as referências para um melhor entendimento da heurística.
 
-Inicialmente, a quantidade de feromônio depositada nas arestas leva em conta o custo de uma construção gulosa. O artigo descreve bem isso.
+Inicialmente, a quantidade de feromônio depositada nas arestas leva em conta o custo de uma construção gulosa. O artigo descreve bem isso. É feita uma distribuição estratificada das formigas nos vértices.
 
 Quaisquer dúvidas, entre em contato :)

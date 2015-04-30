@@ -17,6 +17,8 @@ Um dos menores caminhos para esse grafo é:
 
 7 -> 3 -> 2 -> 5 -> 1 -> 8 -> 4 -> 6 | custo: 140
 
+1 representa o "A", 2 representa o "B" e assim por diante.
+
 Alguns parâmetros podem ser ajustados tais como o "alfa" que é a importância do feromônio, "beta" que é a importância heurística, quantidade de iterações e a taxa de evaporação do feromônio. É aconselhável consultar as referências para um melhor entendimento da heurística.
 
 Inicialmente, a quantidade de feromônio depositada nas arestas leva em conta o custo de uma construção gulosa. O artigo descreve bem isso.
